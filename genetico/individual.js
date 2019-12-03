@@ -14,8 +14,13 @@ const fixedValues = [
 const fixedPositions = [3,  9,  21, 22, 24, 35, 39, 41, 51, 52, 53, 58, 59, 65, 70, 73, 78]
 
 
-class individual {
-    
+module.exports = class individual {
+    /**
+     * if an array is given it forces only the fixed ones to be 
+     * equal to the fixed values.
+     * if no array is given generate with random number except by the fixed values
+     * @param {number[]} array 
+     */
 	constructor(array) {
         this.values = []
 
