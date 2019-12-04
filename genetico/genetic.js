@@ -1,5 +1,4 @@
 var individual = require("./individual");
-
 function generateInitialPopulation(){
     population = []
     for(let i=0;i<100;i++){
@@ -7,4 +6,13 @@ function generateInitialPopulation(){
     }
     return population;
 }
+
+genetic()
+
+function genetic(){
+    population = generateInitialPopulation();
+}
+
+
+
 

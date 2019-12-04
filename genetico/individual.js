@@ -62,7 +62,7 @@ module.exports = class individual {
             var random_number = Math.floor(Math.random()*9)+1;
         }while(random_number=== this.values[random_index] );
         
-        console.log(random_index)
+    
         this.values[random_index] = random_number;
     }
 
@@ -86,4 +86,71 @@ module.exports = class individual {
         ]
     }
 
+    numberOfColisions(){
+        let SquareColisions = countSquareColisions(this.values);
+        let lineColisions = countLineColisions(this.values);
+        let collumnColisions = countCollumnColisions(this.values);
+
+        return SquareColisions + lineColisions + collumnColisions;
+    }
+
+
+    
+}
+
+function countSquareColisions(values){
+    let repetitions = 0;
+    for(let i=0; i<3; i++){
+        for(let j=0; j<3; j++){
+            let array = getBiggerSquareValues(values,i,j);
+            repetitions+=countRepetitions(array);
+        }
+    }
+    return repetitions;
+}
+
+function countLineColisions(values){
+    let repetitions = 0;
+    for(let i=0; i<9; i++){
+        let line = getLine(values,i);
+        repetitions+= countRepetitions(line);
+    }
+    return repetitions;
+}
+
+function countCollumnColisions(values){
+    let repetitions = 0;
+    for(let j=0;j<9;j++){
+        let collumn = getCollumn(values,j);
+        repetitions+= countRepetitions(collumn);
+    }
+    return repetitions;
+}
+
+function getBiggerSquareValues(values,i,j){
+    let i_index = 3*9*i+3*j;
+    let j_index = i_index+3;
+    return [...values.slice(i_index,j_index),...values.slice(i_index+9,j_index+9),...values.slice(i_index+18,j_index+18)]
+}
+
+function getLine(values,i){
+    let index = i*9
+    return values.slice(i*9,i*9+9)
+}
+
+function getCollumn(values,j){
+    let column = [];
+    for(let i=0; i<9;i++){
+        column.push(values.get(i,j));
+    }
+    return column;
+}
+
+function countRepetitions(array){
+    let set = new Set(array);
+    return array.length-set.size
+}
+
+Array.prototype.get = function(i,j){
+    return this[9*i+j];
 }
