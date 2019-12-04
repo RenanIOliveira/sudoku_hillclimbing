@@ -66,7 +66,7 @@ int * fill_board(int * board){
 }
 
 int objetivo(int * board){
-  return repete_linhas(board);// + repete_colunas(board) + repete_squares(board);
+  return repete_squares(board) + repete_colunas(board) + repete_squares(board);
 }
 
 int repete_linhas(int * board){
@@ -85,10 +85,58 @@ int repete_linhas(int * board){
       if (e.second != 1) {
         total+=e.second;
       }
-      cout << "Element " << e.first << " encountered " << e.second << " times\n";
+//    cout << "Element " << e.first << " encountered " << e.second << " times\n";
     }
-    cout << "------" << '\n';
+//  cout << "------" << '\n';
   }
-  cout << "total: " << total << '\n';
+//  cout << "total: " << total << '\n';
+  return total;
+}
+
+int repete_colunas(int * board){
+  int total = 0;
+  map<int, int> frequency;
+  vector<int> data;
+  for (int i = 0; i < 9; i++) {
+    data.clear();
+    frequency.clear();
+    for (int j = 0; j < 9; j++) {
+      data.insert(data.begin(),board[i+j*9]);
+    }
+    for(int i: data)
+        ++frequency[i];
+    for(const auto& e: frequency){
+      if (e.second != 1) {
+        total+=e.second;
+      }
+//    cout << "Element " << e.first << " encountered " << e.second << " times\n";
+    }
+//    cout << "------" << '\n';
+  }
+//  cout << "total: " << total << '\n';
+  return total;
+}
+
+int repete_squares(int * board){
+  int total = 0;
+  map<int, int> frequency;
+  vector<int> data;
+  for (int i = 0; i < 9; i++) {
+    data.clear();
+    frequency.clear();
+    for (int j = 0; j < 9; j++) {
+      data.insert(data.begin(),board[squares[i][j]]);
+    }
+    for(int i: data)
+        ++frequency[i];
+    for(const auto& e: frequency){
+      if (e.second != 1) {
+        total+=e.second;
+      }
+//      cout << "Element " << e.first << " encountered " << e.second << " times\n";
+    }
+//    cout << "------" << '\n';
+  }
+//  cout << "total: " << total << '\n';
   return total;
 }
