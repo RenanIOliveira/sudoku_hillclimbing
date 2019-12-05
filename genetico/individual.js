@@ -42,13 +42,14 @@ module.exports = class individual {
                 this.values[i] = array[i];
              }
          }
-        
-
-        
     }
 
     toString(){
         return this.values.join("");
+    }
+
+    fitness() {
+        return 1/Math.exp(this.numberOfCollisions());
     }
 
     mutate(){
@@ -86,19 +87,16 @@ module.exports = class individual {
         ]
     }
 
-    numberOfColisions(){
-        let SquareColisions = countSquareColisions(this.values);
-        let lineColisions = countLineColisions(this.values);
-        let collumnColisions = countCollumnColisions(this.values);
+    numberOfCollisions(){
+        let SquareCollisions = countSquareCollisions(this.values);
+        let lineCollisions = countLineCollisions(this.values);
+        let columnCollisions = countColumnCollisions(this.values);
 
-        return SquareColisions + lineColisions + collumnColisions;
+        return SquareCollisions + lineCollisions + columnCollisions;
     }
-
-
-    
 }
 
-function countSquareColisions(values){
+function countSquareCollisions(values){
     let repetitions = 0;
     for(let i=0; i<3; i++){
         for(let j=0; j<3; j++){
@@ -109,7 +107,7 @@ function countSquareColisions(values){
     return repetitions;
 }
 
-function countLineColisions(values){
+function countLineCollisions(values){
     let repetitions = 0;
     for(let i=0; i<9; i++){
         let line = getLine(values,i);
@@ -118,11 +116,11 @@ function countLineColisions(values){
     return repetitions;
 }
 
-function countCollumnColisions(values){
+function countColumnCollisions(values){
     let repetitions = 0;
     for(let j=0;j<9;j++){
-        let collumn = getCollumn(values,j);
-        repetitions+= countRepetitions(collumn);
+        let column = getColumn(values,j);
+        repetitions+= countRepetitions(column);
     }
     return repetitions;
 }
@@ -138,7 +136,7 @@ function getLine(values,i){
     return values.slice(i*9,i*9+9)
 }
 
-function getCollumn(values,j){
+function getColumn(values,j){
     let column = [];
     for(let i=0; i<9;i++){
         column.push(values.get(i,j));
