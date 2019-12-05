@@ -1,4 +1,5 @@
-var individual = require("./individual.js");
+var individual = require("./individual");
+
 function generateInitialPopulation(){
     population = []
     for(let i=0;i<populationSize;i++){
@@ -15,16 +16,15 @@ var elitism = true;
 
 function randomValue(min, max) {
 
-    return Math.floor(Math.random() * (max - min + 1) + min);
+    return Math.random() * (max - min) + min;
 }
 
 function fitnessSum(population) {
 
     var totalFitness = 0;
 
-    for (individual in population) {
+    for (individual of population)
         totalFitness += individual.fitness();
-    }
 
     return totalFitness;
 }
@@ -40,21 +40,28 @@ function selection(population) {
     var distance = totalFitness / numberOfParents;
     points = [];
     startPoint = randomValue(0, distance);
+    // console.log(distance)
+    // console.log(startPoint)
     
     for (var i = 0; i < numberOfParents; i++) {
         points.push(startPoint + i * distance);
         
-    }   
-
-    parents = [];
-
-    for (var p in points) {
-
-        for (var i = 0; fitnessSum(population.slice(0,i)) < p; i++) {
-            parents.push(population[i]);
-        }
     }
 
+    // console.log(points.length);
+
+    parents = [];
+    var i;
+
+    for (p of points) {
+
+        i = 0;
+        while ( fitnessSum(population.slice(0,i)) < p) {
+            i++;
+        }
+        parents.push(population[i]);
+    }
+    
     return parents;
 }
 
@@ -63,8 +70,10 @@ genetic()
 function genetic(){
 
     var population = generateInitialPopulation();
+    
 
     var parents = selection(population);
+    console.log(parents)
     
 }
 

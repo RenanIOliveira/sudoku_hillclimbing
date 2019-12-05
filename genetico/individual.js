@@ -1,5 +1,4 @@
 
-
 const fixedValues = [
 	0, 0, 0, 7, 0, 0, 0, 0, 0,
 	1, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -21,6 +20,7 @@ module.exports = class individual {
      * if no array is given generate with random number except by the fixed values
      * @param {number[]} array 
      */
+    
 	constructor(array) {
         this.values = []
 
@@ -49,7 +49,7 @@ module.exports = class individual {
     }
 
     fitness() {
-        return 1/Math.exp(this.numberOfCollisions());
+        return 1/(1+this.numberOfCollisions());
     }
 
     mutate(){
