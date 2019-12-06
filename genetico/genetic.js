@@ -211,8 +211,10 @@ function genetic(){
         // console.log("last: " + lastBest);
         currentBest = population[0].numberOfCollisions();
         console.log("current best: ", population[0].numberOfCollisions());
-        
 
+        if(currentBest == 0) // Se for zero (minimo global)
+            break;
+        
         if (useStability) {
 
             if(generations == 0)
@@ -225,7 +227,7 @@ function genetic(){
                 stabilityCounter = 0;
 
             if (stabilityCounter == stability) {
-                console.log("convergiu para " + currentBest + " !");
+                console.log("Convergiu para " + currentBest + "!");
                 break;
             }
 
