@@ -8,11 +8,14 @@ function generateInitialPopulation(){
     return population;
 }
 
-var crossoverProbability = 0.8;
-var mutationProbability = 0.01;
-var populationSize = 100;
-var maxGenerations = 300;
+// Melhor resultado: 10 (com crossover = 0.75, mutation = 0.45, populationsize = 300 e elitism = true)
+var crossoverProbability = 0.75;
+var mutationProbability = 0.45;
+var populationSize = 300;
+var maxGenerations = 1000;
+var stability = 100;
 var elitism = true;
+var useStability = true;
 
 function randomValue(min, max) {
 
@@ -22,13 +25,23 @@ function randomValue(min, max) {
 function calcFitness(population) {
 
     fitness = []
-    // population.sort(function(a, b){return b.fitness() - a.fitness()});
 
     for(individual of population) {
         fitness.push(individual.fitness())
     }
 
     return fitness
+}
+
+function calcNumberOfCollisions(population) {
+
+    numberOfCollisions = []
+
+    for(individual of population) {
+        numberOfCollisions.push(individual.numberOfCollisions())
+    }
+
+    return numberOfCollisions
 }
 
 function fitnessSum(population) {
@@ -41,10 +54,16 @@ function fitnessSum(population) {
     return totalFitness;
 }
 
-// Roulette Wheel Selection
-function rouletteWheel(population) {
+function sortByFitness(population) {
 
     population.sort(function(a, b){return b.fitness() - a.fitness()});
+}
+
+// Roulette Wheel Selection
+function selection(population) {
+
+    sortByFitness(population);
+
     var totalFitness = fitnessSum(population);
 
     relativeFitness = [];
@@ -56,15 +75,12 @@ function rouletteWheel(population) {
 
     relativeFitness.reduce(function(a,b,i) { return probabilities[i] = a+b; },0);
 
-    // console.log(calcFitness(population))
+    var matingPool = [];
 
-    // console.log(relativeFitness)
+    if (elitism)
+        matingPool.push(population[0]);
 
-    // console.log(probabilities)
-
-    var parents = [];
-
-    while (parents.length < populationSize) {
+    while (matingPool.length < populationSize) {
 
         var pick = randomValue(0, probabilities[populationSize-1]);
         var current = 0;
@@ -74,20 +90,21 @@ function rouletteWheel(population) {
             current += probabilities[individual];
 
             if (pick <= current) {
-                parents.push(population[individual]);
+                matingPool.push(population[individual]);
                 break;
             }
         }
     }
 
-    parents.sort(function(a, b){return b.fitness() - a.fitness()});
-    return parents;
+    sortByFitness(matingPool);
+    return matingPool;
 }
 
 // Stochastic Universal Sampling (SUS)
-function selection(population) {
+// Nao utilizada
+function sus(population) {
 
-    population.sort(function(a, b){return b.fitness() - a.fitness()});
+    sortByFitness(population);
 
     var totalFitness = fitnessSum(population);
 
@@ -95,15 +112,9 @@ function selection(population) {
     var distance = totalFitness / numberOfParents;
     points = [];
     startPoint = randomValue(0, distance);
-    // console.log(distance)
-    // console.log(startPoint)
     
-    for (var i = 0; i < numberOfParents; i++) {
+    for (var i = 0; i < numberOfParents; i++)
         points.push(startPoint + i * distance);
-        
-    }
-
-    // console.log(points.length);
 
     parents = [];
     var i;
@@ -119,10 +130,58 @@ function selection(population) {
             parents.push(population[i]);
         
     }
-
-    console.log("length: ", parents.length)
     
     return parents;
+}
+
+function pickRandomIndividual(population) {
+
+    return population[Math.floor(Math.random() * population.length)];
+}
+
+function probability(probability) {
+
+    return !!probability && Math.random() <= probability;
+}
+
+function doCrossOver(matingPool) {
+
+    newPopulation = [];
+
+    while (newPopulation.length < populationSize) {
+
+        firstPick = pickRandomIndividual(matingPool);
+        matingPool.splice(matingPool.indexOf(firstPick), 1);
+
+        secondPick = pickRandomIndividual(matingPool);
+        matingPool.splice(matingPool.indexOf(secondPick), 1);
+
+        if(probability(crossoverProbability)) {
+            
+            [firstOffspring, secondOffspring]  = firstPick.crossOver(secondPick);
+
+            newPopulation.push(firstOffspring);
+            newPopulation.push(secondOffspring);
+        }
+        else {
+
+            newPopulation.push(firstPick);
+            newPopulation.push(secondPick);
+        }
+    }
+    
+    sortByFitness(newPopulation);
+    return newPopulation;
+}
+
+function doMutation(population) {
+
+    for(individual of population)
+        if(probability(mutationProbability)) 
+            individual.mutate();
+
+    sortByFitness(population);
+    return population;
 }
 
 genetic()
@@ -130,18 +189,55 @@ genetic()
 function genetic(){
 
     var population = generateInitialPopulation();
-    var parents;
+    var matingPool;
 
     var generations = 0;
 
-    parents = rouletteWheel(population);
+    var lastBest = 0;
+    var currentBest = 0;
+    var stabilityCounter = 0;
+    
+    while (generations < maxGenerations) {
 
-    console.log(calcFitness(parents))
+        matingPool = selection(population);
+        // console.log(calcFitness(matingPool)[0]);
 
-    // while (generations < maxGenerations) {
+        population = doCrossOver(matingPool);
+        // console.log(calcFitness(population)[0]);
 
+        population = doMutation(population);
+        // console.log(calcFitness(population)[0]);
 
-    // }
+        // console.log("last: " + lastBest);
+        currentBest = population[0].numberOfCollisions();
+        console.log("current best: ", population[0].numberOfCollisions());
+        
+
+        if (useStability) {
+
+            if(generations == 0)
+                lastBest = population[0].numberOfCollisions();
+
+            if(currentBest == lastBest)
+                stabilityCounter++;
+
+            else
+                stabilityCounter = 0;
+
+            if (stabilityCounter == stability) {
+                console.log("convergiu para " + currentBest + " !");
+                break;
+            }
+
+            if(currentBest < lastBest)
+                lastBest = currentBest;
+        }
+
+        generations++;
+    }
+
+    console.log(population[0]);
+    return population[0]; // Melhor membro da população final
 }
 
 
