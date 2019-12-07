@@ -160,7 +160,7 @@ function genetic(){
     var population = generateInitialPopulation();
     var matingPool;
 
-    var lastBest = 0;
+    var lastBest = Infinity;
     var currentBest = 0;
     var stabilityCounter = 0;
     
@@ -175,30 +175,31 @@ function genetic(){
         population = doMutation(population);
         // console.log(calcFitness(population)[0]);
 
-        // console.log("last: " + lastBest);
         currentBest = population[0].numberOfCollisions();
         console.log("gen: ", generation, " current best: ", population[0].numberOfCollisions());
+
+        if(generation == 200 && currentBest > 16) // Se chegar a 200 geracoes e ainda nao tiver atingido minimo de 16
+            break;
 
         if(currentBest == 0) // Se for zero (minimo global)
             break;
         
         if (useStability) {
 
-            if(generation == 1) 
-                lastBest = population[0].numberOfCollisions();
-
             if(currentBest == lastBest)
                 stabilityCounter++;
-
             else
                 stabilityCounter = 0;
-
+            
+            // console.log("gen: ", generation, " current best: ", population[0].numberOfCollisions(), 
+            // " last best: " + lastBest + " stability: " + stabilityCounter);
+            
             if (stabilityCounter == stability) {
                 console.log("Convergiu para " + currentBest + "!");
                 break;
             }
 
-            if(currentBest < lastBest)
+            if(currentBest != lastBest)
                 lastBest = currentBest;
         }
     }
@@ -206,7 +207,6 @@ function genetic(){
     console.log(population[0]);
     return population[0]; // Melhor membro da população final
 }
-
 
 
 
