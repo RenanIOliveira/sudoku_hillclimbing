@@ -25,28 +25,6 @@ function randomValue(min, max) {
     return Math.random() * (max - min) + min;
 }
 
-function calcFitness(population) {
-
-    fitness = []
-
-    for(individual of population) {
-        fitness.push(individual.fitness())
-    }
-
-    return fitness
-}
-
-function calcNumberOfCollisions(population) {
-
-    numberOfCollisions = []
-
-    for(individual of population) {
-        numberOfCollisions.push(individual.numberOfCollisions())
-    }
-
-    return numberOfCollisions
-}
-
 function fitnessSum(population) {
 
     var totalFitness = 0;
@@ -167,13 +145,13 @@ function genetic(){
     for (var generation = 1; generation <= maxGenerations; generation++) {
 
         matingPool = selection(population);
-        // console.log(calcFitness(matingPool)[0]);
+        // console.log(matingPool[0].fitness());
 
         population = doCrossOver(matingPool);
-        // console.log(calcFitness(population)[0]);
+        // console.log(population[0].fitness());
 
         population = doMutation(population);
-        // console.log(calcFitness(population)[0]);
+        // console.log(population[0].fitness());
 
         currentBest = population[0].numberOfCollisions();
         console.log("gen: ", generation, " current best: ", population[0].numberOfCollisions());
