@@ -8,12 +8,15 @@ function generateInitialPopulation(){
     return population;
 }
 
-// Melhor resultado: 10 (com crossover = 0.75, mutation = 0.45, populationsize = 300 e elitism = true)
-var crossoverProbability = 0.75;
+// Melhores resultados: 
+// 8 (com crossover = 0.85, mutation = 0.45, populationsize = 300, stability = 100 e elitism = true)
+// 10 (com crossover = 0.85, mutation = 0.45, populationsize = 300, stability = 150 e elitism = true)
+
+var crossoverProbability = 0.85;
 var mutationProbability = 0.45;
 var populationSize = 300;
-var maxGenerations = 1000;
-var stability = 100;
+var maxGenerations = 10000;
+var stability = 300;
 var elitism = true;
 var useStability = true;
 
@@ -100,40 +103,6 @@ function selection(population) {
     return matingPool;
 }
 
-// Stochastic Universal Sampling (SUS)
-// Nao utilizada
-function sus(population) {
-
-    sortByFitness(population);
-
-    var totalFitness = fitnessSum(population);
-
-    var numberOfParents = populationSize;
-    var distance = totalFitness / numberOfParents;
-    points = [];
-    startPoint = randomValue(0, distance);
-    
-    for (var i = 0; i < numberOfParents; i++)
-        points.push(startPoint + i * distance);
-
-    parents = [];
-    var i;
-
-    for (p of points) {
-
-        i = 0;
-        while ( fitnessSum(population.slice(0,i)) < p) {
-            i++;
-        }
-
-        if(population[i])
-            parents.push(population[i]);
-        
-    }
-    
-    return parents;
-}
-
 function pickRandomIndividual(population) {
 
     return population[Math.floor(Math.random() * population.length)];
@@ -191,13 +160,11 @@ function genetic(){
     var population = generateInitialPopulation();
     var matingPool;
 
-    var generations = 0;
-
     var lastBest = 0;
     var currentBest = 0;
     var stabilityCounter = 0;
     
-    while (generations < maxGenerations) {
+    for (var generation = 1; generation <= maxGenerations; generation++) {
 
         matingPool = selection(population);
         // console.log(calcFitness(matingPool)[0]);
@@ -210,14 +177,14 @@ function genetic(){
 
         // console.log("last: " + lastBest);
         currentBest = population[0].numberOfCollisions();
-        console.log("current best: ", population[0].numberOfCollisions());
+        console.log("gen: ", generation, " current best: ", population[0].numberOfCollisions());
 
         if(currentBest == 0) // Se for zero (minimo global)
             break;
         
         if (useStability) {
 
-            if(generations == 0)
+            if(generation == 1) 
                 lastBest = population[0].numberOfCollisions();
 
             if(currentBest == lastBest)
@@ -234,8 +201,6 @@ function genetic(){
             if(currentBest < lastBest)
                 lastBest = currentBest;
         }
-
-        generations++;
     }
 
     console.log(population[0]);
